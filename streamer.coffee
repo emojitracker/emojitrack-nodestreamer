@@ -37,9 +37,9 @@ server.listen port, ->
 ###
 # redisClient = redis.createClient()
 # clientControl = redis.createClient() #need a second connection so main one is only used for sub
-Redis = require("redis")
-Url = require("url")
-rtg = Url.parse(process.env.REDIS_URL)
+redis = require("redis")
+url = require("url")
+rtg = url.parse(process.env.REDIS_URL)
 redisStreamClient = redis.createClient(rtg.port, rtg.hostname)
 redisStreamClient.auth(rtg.auth.split(":")[1])
 
