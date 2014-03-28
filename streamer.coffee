@@ -1,3 +1,4 @@
+# ### some leftover ruby stuff here
 # log_connect = (stream_obj) ->
 #    "STREAM: connect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
 #   REDIS.PUBLISH 'stream.admin.connect', stream_obj.to_json
@@ -5,16 +6,17 @@
 # log_disconnect = (stream_obj) ->
 #   console.log "STREAM: disconnect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
 #   REDIS.PUBLISH 'stream.admin.disconnect', stream_obj.to_json
+#
+# logEvent = (eventName, streamObject) ->
+#   console.log "STREAM: disconnect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
+#   REDIS.PUBLISH "stream.admin.#{eventName}", stream_obj.to_json
 
-logEvent = (eventName, streamObject) ->
-  console.log "STREAM: disconnect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
-  REDIS.PUBLISH "stream.admin.#{eventName}", stream_obj.to_json
-
-# redis   = require('redis')
+redis   = require("redis")
+url     = require("url")
 app     = require('express')()
 server  = require('http').Server(app)
 io      = require('socket.io')(server)
-io.set('log level', 3)
+io.set('log level', 3) #this seems to do nothing in socket.io 1.0 sigh
 
 ScoreCache = require('./lib/ScoreCache')
 
@@ -26,12 +28,6 @@ port = process.env.PORT || 8000
 server.listen port, ->
   console.log('Listening on ' + port)
 
-###
-# turn faye into a push only server
-#  - https://blog.jcoglan.com/2011/02/15/turning-faye-into-a-push-only-server/\
-#  - this seems a bit shoehorny but....
-###
-# you know what, FUCK FAYE
 
 sc = new ScoreCache(17) #1000/60 rounded
 sc.on 'expunge', (scores) ->
@@ -40,10 +36,8 @@ sc.on 'expunge', (scores) ->
 ###
 # redis event stuff
 ###
-# redisClient = redis.createClient()
 # clientControl = redis.createClient() #need a second connection so main one is only used for sub
-redis = require("redis")
-url = require("url")
+
 rtg = url.parse(process.env.REDIS_URL)
 redisStreamClient = redis.createClient(rtg.port, rtg.hostname)
 redisStreamClient.auth(rtg.auth.split(":")[1])
