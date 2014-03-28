@@ -34,8 +34,8 @@ server.listen port, ->
 # you know what, FUCK FAYE
 
 sc = new ScoreCache(17) #1000/60 rounded
-sc.on 'expunge', ->
-  io.of('/eps').emit 'bulk_score_update', JSON.stringify(sc.scores())
+sc.on 'expunge', (scores) ->
+  io.of('/eps').emit 'bulk_score_update', JSON.stringify( scores )
 
 ###
 # redis event stuff

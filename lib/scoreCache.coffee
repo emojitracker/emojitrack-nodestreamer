@@ -31,7 +31,7 @@ class ScoreCache extends EventEmitter
     Object.keys(@_scores).length == 0
 
   expunge: () =>
-    @emit 'expunge'
+    @emit 'expunge', @_scores
     @empty()
 
 
