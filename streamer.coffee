@@ -29,7 +29,7 @@ server.listen port, ->
   console.log('Listening on ' + port)
 
 
-sc = new ScoreCache(17) #1000/60 rounded
+sc = new ScorePacker(17) #1000/60 rounded
 sc.on 'expunge', (scores) ->
   io.of('/eps').emit 'bulk_score_update', JSON.stringify( scores )
 
