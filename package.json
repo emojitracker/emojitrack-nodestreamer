@@ -1,0 +1,22 @@
+{
+  "name": "emojitrack-streamer",
+  "version": "0.0.0",
+  "description": "Handle multiplex SSE event streams for emojitracker",
+  "main": "streamer.coffee",
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script/register -R spec"
+  },
+  "author": "Matthew Rothenberg <mroth@mroth.info>",
+  "license": "ISC",
+  "dependencies": {
+    "coffee-script": "^1.7.1",
+    "express": "^3.5.1",
+    "redis": "^0.10.1",
+    "socket.io": "1.0.0-pre",
+    "socket.io-client": "1.0.0-pre"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.18.2"
+  }
+}
