@@ -7,7 +7,9 @@ describe 'ScorePacker', ->
   describe ".new()", ->
     it 'should initialize cleanly', ->
       sc = new ScorePacker()
-    it 'should take an optional period for how often it should expunge'
+    it 'should take an optional period for how often to expunge', (done) ->
+      sc = new ScorePacker(10)
+      sc.on 'expunge', -> done()
 
   describe 'basic instance methods', ->
 
