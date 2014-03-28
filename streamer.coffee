@@ -18,7 +18,7 @@ server  = require('http').Server(app)
 io      = require('socket.io')(server)
 io.set('log level', 3) #this seems to do nothing in socket.io 1.0 sigh
 
-ScoreCache = require('./lib/ScoreCache')
+ScorePacker = require('./lib/ScorePacker')
 
 ###
 # stand up services

@@ -1,9 +1,12 @@
-# Rollup a score cache
-# Expunges every N period
-{EventEmitter} = require 'events'
-class ScoreCache extends EventEmitter
+# Rolls up a score value for given keys.
+# Expunges those scores as an event every N period ms.
+# Used to 'summarize' extremely high volume data streams,
+# and consume them at a predictable rate.
 
-  # Public: construct a new ScoreCache
+{EventEmitter} = require 'events'
+class ScorePacker extends EventEmitter
+
+  # Public: construct a new ScorePacker
   #
   # period - how often you want scores expunged (optional).
   #
@@ -35,4 +38,4 @@ class ScoreCache extends EventEmitter
     @empty()
 
 
-module.exports = ScoreCache
+module.exports = ScorePacker
