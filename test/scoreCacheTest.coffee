@@ -50,4 +50,9 @@ describe 'ScoreCache', ->
   describe 'handle periodic expunging', ->
     describe '#expunge()', ->
       it 'should emit values to the expunged event'
-      it 'should reset itself after'
+      it 'should reset itself after an expunge', ->
+        sc = new ScoreCache()
+        sc.increment('foo')
+        sc.isEmpty().should.equal false
+        sc.expunge()
+        sc.isEmpty().should.equal true
