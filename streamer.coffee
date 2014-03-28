@@ -16,6 +16,8 @@ server  = require('http').Server(app)
 io      = require('socket.io')(server)
 io.set('log level', 3)
 
+ScoreCache = require('./lib/ScoreCache')
+
 ###
 # stand up services
 ###
@@ -31,6 +33,9 @@ server.listen port, ->
 ###
 # you know what, FUCK FAYE
 
+sc = new ScoreCache(17) #1000/60 rounded
+sc.on 'expunge', ->
+  io.of('/eps').emit 'bulk_score_update', JSON.stringify(sc.scores())
 
 ###
 # redis event stuff
@@ -49,17 +54,12 @@ redisStreamClient.psubscribe('stream.tweet_updates.*')
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
   if channel == 'stream.score_updates'
-    io.of('/raw').emit 'score_update', msg
-    #TODO: update eps
+    io.of('/raw').emit 'score_update', msg #TODO: maybe disable now that we dont use?
+    sc.increment msg
   else if channel.indexOf('stream.tweet_updates.') == 0 #.startsWith
     channelID = channel.split('.')[2]
     io.of("/details/#{channelID}").emit 'tweet', msg
   # else if 'stream.interaction.*'
-
-# setInterval ->
-#   io.of('/raw').emit 'score_update', {farts:1}
-#   io.of('/details/1F22').emit 'tweet', {text:'i luv cats',id:69}
-# , 250
 
 
 ###

@@ -51,5 +51,3 @@ describe 'ScoreCache', ->
     describe '#expunge()', ->
       it 'should emit values to the expunged event'
       it 'should reset itself after'
-    describe 'on expunge event', ->
-      it 'should have an event handler'

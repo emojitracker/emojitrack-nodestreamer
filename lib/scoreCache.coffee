@@ -1,16 +1,17 @@
 # Rollup a score cache
 # Expunges every N period
-
-class ScoreCache
+{EventEmitter} = require 'events'
+class ScoreCache extends EventEmitter
 
   # Public: construct a new ScoreCache
   #
-  # period           - how often you want scores expunged (optional)
-  # expungeScoreSink - the Function that scores will be passed
-  #                    to before they are expunged (optional)
+  # period - how often you want scores expunged (optional).
   #
-  constructor: (@period=null, @expungeScoreSink) ->
+  constructor: (period=null) ->
     @_scores = {}
+
+    if period?
+      setInterval @expunge, period
 
   increment: (key, amount=1) ->
     @_scores[key] ?= 0
@@ -28,6 +29,10 @@ class ScoreCache
 
   isEmpty: () ->
     Object.keys(@_scores).length == 0
+
+  expunge: () =>
+    @emit 'expunge'
+    @empty()
 
 
 module.exports = ScoreCache
