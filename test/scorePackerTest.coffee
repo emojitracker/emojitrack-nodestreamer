@@ -49,7 +49,12 @@ describe 'ScorePacker', ->
 
   describe 'handle periodic expunging', ->
     describe '#expunge()', ->
-      it 'should emit values to the expunged event'
+      it 'should emit score values to the expunged event', (done) ->
+        sc = new ScorePacker()
+        sc.on 'expunge', (payload) ->
+          payload.should.equal sc._scores
+          done()
+        sc.expunge()
       it 'should reset itself after an expunge', ->
         sc = new ScorePacker()
         sc.increment('foo')
