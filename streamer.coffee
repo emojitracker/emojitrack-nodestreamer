@@ -16,7 +16,7 @@ url     = require("url")
 app     = require('express')()
 server  = require('http').Server(app)
 io      = require('socket.io')(server)
-io.set('log level', 3) #this seems to do nothing in socket.io 1.0 sigh
+
 
 ScorePacker = require('./lib/ScorePacker')
 
@@ -61,14 +61,26 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 ###
 
 # huh, this might actually all be handled with subscribe messages now on the client side...
-raw = io.of('/raw').on 'connection', ->
-  console.log "connection to raw"
 
-raw = io.of('/details').on 'connection', ->
-  console.log "connection to details"
+###
+# logging event stuff
+###
+VERBOSE = true #process.env.VERBOSE || false #TODO fixme from ruby
+# if VERBOSE
+  # raw = io.of('/raw').on 'connection', ->
+  #   console.log "connection to raw"
+  #
+  # raw = io.of('/details').on 'connection', ->
+  #   console.log "connection to details"
 
-raw = io.on 'connection', ->
-  console.log "generic connection"
+  # raw = io.on 'connection', ->
+    # console.log "generic connection"
+    # console.log io.sockets.sockets
+
+setTimeout ->
+  console.log io.sockets.sockets
+, 5000
+
 # i think the above only gets fired once per websocket connection and namespaces multiplexed
 # look for a 'subscribe' type one?
 

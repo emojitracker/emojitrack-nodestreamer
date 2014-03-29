@@ -1,6 +1,6 @@
 io = require('socket.io-client')
 
-raw = io('http://localhost:5000/raw')
+# raw = io('http://localhost:5000/raw')
 eps = io('http://localhost:5000/eps')
 deetz = io('http://localhost:5000/details/1F44C')
 
