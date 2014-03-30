@@ -16,10 +16,12 @@ url     = require('url')
 app     = require('express')()
 server  = require('http').Server(app)
 dotenv  = require('dotenv')
+dotenv.load()
+
+debug   = require('debug')('emojitrack-sse:server')
 
 #should be in config...
 VERBOSE = true #process.env.VERBOSE || false #TODO fixme from ruby
-dotenv.load()
 
 ScorePacker = require('./lib/ScorePacker')
 ConnectionPool = require('./lib/connectionPool')
