@@ -9,7 +9,7 @@ class ConnectionPool
   add: (channel,req,res) ->
     id = uuid.v1()
     @_connections[id] = new Connection(channel,req,res)
-    debug "subscribed client #{id} (#{req.ip}) to #{channel}"
+    debug "subscribed client #{id} to #{channel}"
     id
 
   remove: (id) ->
