@@ -1,1 +1,1 @@
-web: coffee streamer.coffee
+sse: coffee server-sse.coffee
