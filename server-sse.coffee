@@ -63,7 +63,7 @@ app.get '/subscribe/eps', (req, res) ->
   provision_client req,res,'/eps',epsClients
 
 app.get '/subscribe/details/:id', (req, res) ->
-  provision_client req,res,"/details/#{id}",detailClients
+  provision_client req,res,"/details/#{req.params.id}",detailClients
 
 
 ###
