@@ -26,7 +26,7 @@ class ConnectionPool
     _.where(@_connections,{channel:channel})
 
   status_hash: ->
-    _.pluck(@_connections,'status_hash')
+    _.map @_connections, (conn)->conn.status_hash()
 
 class Connection
   constructor: (@channel,@req,@res) ->
@@ -48,7 +48,7 @@ class Connection
     {
       request_path: @req.path
       tag: @channel.split('/')[2]
-      created_at: @created_at
+      created_at: @createdAt
       age: @age()
       client_ip: @req.ip
       client_user_agent: @req.get('User-Agent')
