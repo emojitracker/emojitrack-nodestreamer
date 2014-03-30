@@ -41,7 +41,7 @@ class ScorePacker extends EventEmitter
 
   expunge: () =>
     if @isEmpty()
-      debug "expunge: timer interval reached but cache is empty"
+      debug "expunge: cache is empty, no emit"
     else
       debug "expunge: #{@count()} values emitted"
       @emit 'expunge', @_scores

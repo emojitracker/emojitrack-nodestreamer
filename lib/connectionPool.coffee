@@ -19,15 +19,8 @@ class ConnectionPool
   count: ->
     Object.keys(@_connections).length
 
-  broadcast: ({data,event,namespace}) ->#(data,event=null,channel=null) ->
-    #TODO replace with emit so it doesnt block? or does it block??
-    debug "got broadcast msg #{data}"
-
-    if channel? #restrict msg to only matching a specific channel
-      for conn in @_connections
-        conn.send(data,event) if client.channel == namespace
-    else
-      conn.send(data,event) for conn in @_connections
+  broadcast: ({data,event,channel}) ->
+    client.sse_send(data,event) for client in @_match(channel)
 
   _match: (channel) ->
     _.where(@_connections,{channel:channel})
@@ -38,12 +31,13 @@ class ConnectionPool
 class Connection
   constructor: (@channel,@req,@res) ->
     @createdAt = Date.now()
+    debug 'connection created'
 
   age: ->
     Date.now() - @createdAt
 
   sse_send: (data,event=null) ->
-    @res.write _sse_string(data,event)
+    @res.write @_sse_string(data,event)
 
   _sse_string: (data,event=null) ->
     "event:#{event}\ndata:#{data}\n\n" if event?

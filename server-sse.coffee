@@ -20,9 +20,6 @@ dotenv.load()
 
 debug   = require('debug')('emojitrack-sse:server')
 
-#should be in config...
-VERBOSE = true #process.env.VERBOSE || false #TODO fixme from ruby
-
 ScorePacker = require('./lib/ScorePacker')
 ConnectionPool = require('./lib/connectionPool')
 
@@ -81,13 +78,13 @@ redisStreamClient.psubscribe('stream.tweet_updates.*')
 
 sc = new ScorePacker(17) #17ms
 sc.on 'expunge', (scores) ->
-  epsClients.broadcast {data: JSON.stringify(scores), event: null, namespace: null}
+  epsClients.broadcast {data: JSON.stringify(scores), event: null, channel: '/eps'}
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 
   if channel == 'stream.score_updates'
     #broadcast to raw stream
-    rawClients.broadcast {data: msg, event: null, namespace: null}
+    rawClients.broadcast {data: msg, event: null, channel: '/raw'}
     #send to score packer for eps rollup stream
     sc.increment(msg)
 
@@ -96,7 +93,7 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
     detailClients.broadcast {
                               data: msg
                               event: "/details/#{channelID}"
-                              namespace: "/details/#{channelID}"
+                              channel: "/details/#{channelID}"
                             }
 
   # else if 'stream.interaction.*' #TODO: reimplement me when we need kiosk mode again
