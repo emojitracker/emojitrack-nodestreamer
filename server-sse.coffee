@@ -15,8 +15,14 @@ redis   = require('redis')
 url     = require('url')
 app     = require('express')()
 server  = require('http').Server(app)
+dotenv  = require('dotenv')
+
+#should be in config...
+VERBOSE = true #process.env.VERBOSE || false #TODO fixme from ruby
+dotenv.load()
 
 ScorePacker = require('./lib/ScorePacker')
+ConnectionPool = require('./lib/connectionPool')
 
 ###
 # stand up services
@@ -29,7 +35,10 @@ server.listen port, ->
 ###
 # routing event stuff
 ###
-clients = new ConnectionPool()
+rawClients     = new ConnectionPool()
+epsClients     = new ConnectionPool()
+detailClients  = new ConnectionPool()
+#kiosk_clients = new ConnectionPool()
 
 sse_headers = (req,res) ->
   req.socket.setTimeout(Infinity)
@@ -40,19 +49,19 @@ sse_headers = (req,res) ->
   })
   res.write('\n')
 
-provision_client = (req,res,channel) ->
+provision_client = (req,res,channel,connectionPool) ->
   sse_headers(req,res)
-  clientId = clients.add(clientId,channel,req,res)
-  req.on 'close', -> clients.remove(clientId)
+  clientId = connectionPool.add(channel,req,res)
+  req.on 'close', -> connectionPool.remove(clientId)
 
 app.get '/subscribe/raw', (req, res) ->
-  provision_client req,res,'/raw'
+  provision_client req,res,'/raw',rawClients
 
 app.get '/subscribe/eps', (req, res) ->
-  provision_client req,res,'/eps'
+  provision_client req,res,'/eps',epsClients
 
 app.get '/subscribe/details/:id', (req, res) ->
-  provision_client req,res,"/details/#{id}"
+  provision_client req,res,"/details/#{id}",detailClients
 
 
 ###
@@ -70,28 +79,32 @@ redisStreamClient.psubscribe('stream.tweet_updates.*')
 
 sc = new ScorePacker(17) #17ms
 sc.on 'expunge', (scores) ->
-  clients.broadcast "/eps", JSON.stringify( scores )
+  epsClients.broadcast {data: JSON.stringify(scores), event: null, namespace: null}
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
+
   if channel == 'stream.score_updates'
-    clients.broadcast "/raw", msg #TODO: maybe disable now that we dont use?
+    #broadcast to raw stream
+    rawClients.broadcast {data: msg, event: null, namespace: null}
+    #send to score packer for eps rollup stream
     sc.increment(msg)
+
   else if channel.indexOf('stream.tweet_updates.') == 0 #.startsWith
     channelID = channel.split('.')[2]
-    clients.broadcast "/details/#{channelID}", msg, "/details/#{channelID}"
-  # else if 'stream.interaction.*'
+    detailClients.broadcast {
+                              data: msg
+                              event: "/details/#{channelID}"
+                              namespace: "/details/#{channelID}"
+                            }
+
+  # else if 'stream.interaction.*' #TODO: reimplement me when we need kiosk mode again
 
 
-
-###
-# how we write to all da clients
-###
 
 
 ###
 # logging event stuff
 ###
-VERBOSE = true #process.env.VERBOSE || false #TODO fixme from ruby
 # if VERBOSE
   # raw = io.of('/raw').on 'connection', ->
   #   console.log "connection to raw"
@@ -104,14 +117,21 @@ VERBOSE = true #process.env.VERBOSE || false #TODO fixme from ruby
     # console.log io.sockets.sockets
 
 
-# i think the above only gets fired once per websocket connection and namespaces multiplexed
-# look for a 'subscribe' type one?
-
 ###
 # monitoring
-#  see http://faye.jcoglan.com/node/monitoring.html
 ###
-# bayeux.on 'handshake' -> null
-# bayeux.on 'subscribe' -> null
-# bayeux.on 'unsubscribe' -> null
-# bayeux.on 'disconnect' -> null
+status_report = ->
+  {
+    node: null
+    reported_at: Date.now()
+    connections: {
+      stream_raw: rawClients.status_hash()
+      stream_eps: epsClients.status_hash()
+      stream_detail: detailClients.status_hash()
+    }
+  }
+
+app.get '/subscribe/admin/node.json', (req, res) ->
+  res.json status_report()
+
+# TODO: periodic task to report to redis

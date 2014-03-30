@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "coffee-script": "^1.7.1",
+    "debug": "^0.8.0",
+    "dotenv": "^0.2.7",
     "express": "^3.5.1",
     "node-uuid": "^1.4.1",
     "primus": "^2.1.2",

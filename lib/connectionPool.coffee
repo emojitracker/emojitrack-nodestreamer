@@ -1,5 +1,6 @@
-uuid = require('node-uuid')
 _ = require('underscore')
+uuid = require('node-uuid')
+debug = require('debug')('emojitrack:ConnectionPool')
 
 class ConnectionPool
   constructor: () ->
@@ -8,36 +9,31 @@ class ConnectionPool
   add: (channel,req,res) ->
     id = uuid.v1()
     @_connections[id] = new Connection(channel,req,res)
+    debug "subscribed client #{id} (#{req.ip}) to #{channel}"
     id
 
   remove: (id) ->
+    debug "unsubscribed client #{id}"
     delete @_connections[id]
 
   count: ->
     Object.keys(@_connections).length
 
-  broadcast: (channel,data,event=null) ->
+  broadcast: ({data,event,namespace}) ->#(data,event=null,channel=null) ->
     #TODO replace with emit so it doesnt block? or does it block??
-    for client in @_connections
-      client.res.write( _sse_string(data,event) ) if client.channel == channel
+    debug "got broadcast msg #{data}"
+
+    if channel? #restrict msg to only matching a specific channel
+      for conn in @_connections
+        conn.send(data,event) if client.channel == namespace
+    else
+      conn.send(data,event) for conn in @_connections
 
   _match: (channel) ->
     _.where(@_connections,{channel:channel})
 
-  _sse_string: (data,event=null) ->
-    "event:#{event}\ndata:#{data}\n\n" if event?
-    "data:#{data}\n\n"
-
   status_hash: ->
-    {
-      node: null
-      reported_at: Date.now()
-      connections: {
-        stream_raw: null
-        stream_eps: null
-        stream_detail: null
-      }
-    }
+    _.pluck(@_connections,'status_hash')
 
 class Connection
   constructor: (@channel,@req,@res) ->
@@ -45,6 +41,13 @@ class Connection
 
   age: ->
     Date.now() - @createdAt
+
+  sse_send: (data,event=null) ->
+    @res.write _sse_string(data,event)
+
+  _sse_string: (data,event=null) ->
+    "event:#{event}\ndata:#{data}\n\n" if event?
+    "data:#{data}\n\n"
 
   # return a hash of what our reporting infrastructure expects
   status_hash: ->
