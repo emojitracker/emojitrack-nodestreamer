@@ -2,6 +2,9 @@
 # Expunges those scores as an event every N period ms.
 # Used to 'summarize' extremely high volume data streams,
 # and consume them at a predictable rate.
+#
+# Does not expunge when cache is empty, so do not rely upon for timing data.
+debug = require('debug')('emojitrack-sse:ScorePacker')
 
 {EventEmitter} = require 'events'
 class ScorePacker extends EventEmitter
@@ -26,16 +29,23 @@ class ScorePacker extends EventEmitter
   scores: () ->
     @_scores
 
+  count: ->
+    Object.keys(@_scores).length
+
   empty: () ->
     @_scores = {}
     this
 
   isEmpty: () ->
-    Object.keys(@_scores).length == 0
+    @count() == 0
 
   expunge: () =>
-    @emit 'expunge', @_scores
-    @empty()
+    if @isEmpty()
+      debug "expunge: timer interval reached but cache is empty"
+    else
+      debug "expunge: #{@count()} values emitted"
+      @emit 'expunge', @_scores
+      @empty()
 
 
 module.exports = ScorePacker

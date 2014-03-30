@@ -9,6 +9,7 @@ describe 'ScorePacker', ->
       sc = new ScorePacker()
     it 'should take an optional period for how often to expunge', (done) ->
       sc = new ScorePacker(10)
+      sc.increment('placeholder_value_so_expunge_happens')
       sc.on 'expunge', -> done()
 
   describe 'basic instance methods', ->
@@ -53,6 +54,7 @@ describe 'ScorePacker', ->
     describe '#expunge()', ->
       it 'should emit score values to the expunged event', (done) ->
         sc = new ScorePacker()
+        sc.increment('placeholder_value')
         sc.on 'expunge', (payload) ->
           payload.should.equal sc._scores
           done()
