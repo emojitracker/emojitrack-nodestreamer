@@ -1,6 +1,6 @@
 _ = require('underscore')
 uuid = require('node-uuid')
-debug = require('debug')('emojitrack:ConnectionPool')
+debug = require('debug')('emojitrack-sse:ConnectionPool')
 
 class ConnectionPool
   constructor: () ->
