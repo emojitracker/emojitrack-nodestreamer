@@ -19,6 +19,8 @@ url     = require('url')
 app     = require('express')()
 server  = require('http').Server(app)
 
+VERBOSE = true #todo: define in env
+
 ScorePacker = require('./lib/ScorePacker')
 ConnectionPool = require('./lib/connectionPool')
 
@@ -48,8 +50,11 @@ sse_headers = (req,res) ->
 
 provision_client = (req,res,channel,connectionPool) ->
   sse_headers(req,res)
+  console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if VERBOSE
   clientId = connectionPool.add(channel,req,res)
-  req.on 'close', -> connectionPool.remove(clientId)
+  req.on 'close', ->
+    connectionPool.remove(clientId)
+    console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if VERBOSE
 
 app.get '/subscribe/raw', (req, res) ->
   provision_client req,res,'/raw',rawClients
@@ -95,23 +100,6 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
                             }
 
   # else if 'stream.interaction.*' #TODO: reimplement me when we need kiosk mode again
-
-
-
-
-###
-# logging event stuff
-###
-# if VERBOSE
-  # raw = io.of('/raw').on 'connection', ->
-  #   console.log "connection to raw"
-  #
-  # raw = io.of('/details').on 'connection', ->
-  #   console.log "connection to details"
-
-  # raw = io.on 'connection', ->
-    # console.log "generic connection"
-    # console.log io.sockets.sockets
 
 
 ###
