@@ -56,12 +56,13 @@ app.get '/subscribe/details/:id', (req, res) ->
 ###
 # redis event stuff
 ###
-# clientControl = redis.createClient() #need a second connection so main one is only used for sub
+redis_connect = ->
+  rtg = url.parse(process.env.REDIS_URL)
+  rclient = redis.createClient(rtg.port, rtg.hostname)
+  rclient.auth(rtg.auth.split(":")[1])
+  rclient
 
-rtg = url.parse(process.env.REDIS_URL)
-redisStreamClient = redis.createClient(rtg.port, rtg.hostname)
-redisStreamClient.auth(rtg.auth.split(":")[1])
-
+redisStreamClient = redis_connect()
 redisStreamClient.psubscribe('stream.score_updates')
 redisStreamClient.psubscribe('stream.tweet_updates.*')
 # redis.psubscribe('stream.interaction.*')
@@ -107,3 +108,4 @@ app.get '/subscribe/admin/node.json', (req, res) ->
   res.json status_report()
 
 # TODO: periodic task to report to redis
+redisReportingClient = redis_connect()
