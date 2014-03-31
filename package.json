@@ -14,6 +14,7 @@
     "debug": "^0.8.0",
     "dotenv": "^0.2.7",
     "express": "^3.5.1",
+    "hiredis": "^0.1.16",
     "lodash": "^2.4.1",
     "node-uuid": "^1.4.1",
     "redis": "^0.10.1"
