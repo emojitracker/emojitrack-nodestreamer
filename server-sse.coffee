@@ -6,9 +6,10 @@ url     = require('url')
 app     = require('express')()
 server  = require('http').Server(app)
 
-VERBOSE = true #todo: define in env
+to_bool = (s) -> s and !!s.match(/^(true|t|yes|y|1)$/i)
+VERBOSE = to_bool(process.env.VERBOSE) || false
 
-ScorePacker = require('./lib/scorePacker')
+ScorePacker    = require('./lib/scorePacker')
 ConnectionPool = require('./lib/connectionPool')
 
 ###
