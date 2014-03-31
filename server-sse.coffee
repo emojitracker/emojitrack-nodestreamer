@@ -95,6 +95,9 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 ###
 # monitoring
 ###
+STREAM_STATUS_REDIS_KEY = 'admin_stream_status'
+STREAM_STATUS_UPDATE_RATE = 5000
+
 server_node_name = ->
   platform = 'node'
   environment = process.env.NODE_ENV || 'development'
@@ -115,5 +118,12 @@ status_report = ->
 app.get '/subscribe/admin/node.json', (req, res) ->
   res.json status_report()
 
-# TODO: periodic task to report to redis
+# needs to be on a different redis client than SUBSCRIBE
 redisReportingClient = redis_connect()
+send_report = ->
+  redisReportingClient.hset(
+    STREAM_STATUS_REDIS_KEY,
+    server_node_name(),
+    JSON.stringify( status_report() )
+  )
+setInterval send_report, STREAM_STATUS_UPDATE_RATE
