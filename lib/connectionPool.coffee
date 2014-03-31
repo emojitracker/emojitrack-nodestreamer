@@ -1,4 +1,4 @@
-_ = require('underscore')
+_ = require('lodash')
 uuid = require('node-uuid')
 debug = require('debug')('emojitrack-sse:ConnectionPool')
 
