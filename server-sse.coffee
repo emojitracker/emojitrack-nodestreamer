@@ -1,16 +1,3 @@
-# ### some leftover ruby stuff here
-# log_connect = (stream_obj) ->
-#    "STREAM: connect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
-#   REDIS.PUBLISH 'stream.admin.connect', stream_obj.to_json
-#
-# log_disconnect = (stream_obj) ->
-#   console.log "STREAM: disconnect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
-#   REDIS.PUBLISH 'stream.admin.disconnect', stream_obj.to_json
-#
-# logEvent = (eventName, streamObject) ->
-#   console.log "STREAM: disconnect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
-#   REDIS.PUBLISH "stream.admin.#{eventName}", stream_obj.to_json
-
 require('dotenv').load()
 
 debug   = require('debug')('emojitrack-sse:server')
