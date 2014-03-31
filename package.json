@@ -16,12 +16,7 @@
     "express": "^3.5.1",
     "lodash": "^2.4.1",
     "node-uuid": "^1.4.1",
-    "primus": "^2.1.2",
-    "primus-multiplex": "^3.0.1",
-    "redis": "^0.10.1",
-    "socket.io": "1.0.0-pre",
-    "socket.io-client": "1.0.0-pre",
-    "ws": "^0.4.31"
+    "redis": "^0.10.1"
   },
   "devDependencies": {
     "chai": "^1.9.1",
