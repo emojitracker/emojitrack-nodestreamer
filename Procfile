@@ -1,1 +1,1 @@
-sse: coffee server-sse.coffee
+web: coffee server-sse.coffee
