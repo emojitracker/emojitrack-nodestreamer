@@ -8,7 +8,7 @@ server  = require('http').Server(app)
 
 VERBOSE = true #todo: define in env
 
-ScorePacker = require('./lib/ScorePacker')
+ScorePacker = require('./lib/scorePacker')
 ConnectionPool = require('./lib/connectionPool')
 
 ###
