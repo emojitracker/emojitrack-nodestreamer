@@ -33,7 +33,7 @@ class Connection
     @createdAt = Date.now()
 
   age: ->
-    Date.now() - @createdAt
+    Math.floor( (Date.now() - @createdAt) / 1000 )
 
   sse_send: (data,event=null) ->
     @res.write @_sse_string(data,event)
@@ -46,7 +46,7 @@ class Connection
   status_hash: ->
     {
       request_path: @req.path
-      tag: @channel.split('/')[2]
+      tag: @channel.split('/')[2] || null
       created_at: @createdAt
       age: @age()
       client_ip: @req.ip
