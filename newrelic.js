@@ -20,6 +20,9 @@ exports.config = {
      * issues with the agent, 'info' and higher will impose the least overhead on
      * production applications.
      */
-    level : 'trace'
+    level : 'info'
+  },
+  browser_monitoring : {
+    enable : false
   }
 };
