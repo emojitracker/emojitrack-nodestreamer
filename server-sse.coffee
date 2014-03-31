@@ -93,9 +93,15 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 ###
 # monitoring
 ###
+server_node_name = ->
+  platform = 'node'
+  environment = process.env.NODE_ENV || 'development'
+  dyno = process.env.DYNO || 'unknown'
+  "#{platform}-#{environment}-#{dyno}"
+
 status_report = ->
   {
-    node: null
+    node: server_node_name()
     reported_at: Date.now()
     connections: {
       stream_raw: rawClients.status_hash()
