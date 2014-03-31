@@ -31,7 +31,6 @@ class ConnectionPool
 class Connection
   constructor: (@channel,@req,@res) ->
     @createdAt = Date.now()
-    debug 'connection created'
 
   age: ->
     Date.now() - @createdAt
