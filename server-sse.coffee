@@ -11,14 +11,13 @@
 #   console.log "STREAM: disconnect for #{stream_obj.request_path} from #{request.ip}" if VERBOSE
 #   REDIS.PUBLISH "stream.admin.#{eventName}", stream_obj.to_json
 
+require('dotenv').load()
+
+debug   = require('debug')('emojitrack-sse:server')
 redis   = require('redis')
 url     = require('url')
 app     = require('express')()
 server  = require('http').Server(app)
-dotenv  = require('dotenv')
-dotenv.load()
-
-debug   = require('debug')('emojitrack-sse:server')
 
 ScorePacker = require('./lib/ScorePacker')
 ConnectionPool = require('./lib/connectionPool')
@@ -29,7 +28,6 @@ ConnectionPool = require('./lib/connectionPool')
 port = process.env.PORT || 8000
 server.listen port, ->
   console.log('Listening on ' + port)
-
 
 ###
 # routing event stuff
