@@ -14,7 +14,11 @@ ConnectionPool = require('./lib/connectionPool')
 ###
 # stand up services
 ###
-app.enable('trust proxy') #since behind heroku routing
+app.configure 'production', ->
+  # trust x forwarded for headers from proxy (heroku routing)
+  app.enable('trust proxy')
+  # enable new relic reporting
+  require('newrelic')
 
 port = process.env.PORT || 8000
 server.listen port, ->
