@@ -14,6 +14,8 @@ ConnectionPool = require('./lib/connectionPool')
 ###
 # stand up services
 ###
+app.enable('trust proxy') #since behind heroku routing
+
 port = process.env.PORT || 8000
 server.listen port, ->
   console.log('Listening on ' + port)
