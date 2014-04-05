@@ -4,7 +4,8 @@ debug   = require('debug')('emojitrack-sse:server')
 redis   = require('redis')
 url     = require('url')
 app     = require('express')()
-server  = require('http').Server(app)
+http    = require('http')
+server  = http.Server(app)
 
 to_bool = (s) -> s and !!s.match(/^(true|t|yes|y|1)$/i)
 VERBOSE = to_bool(process.env.VERBOSE) || false
@@ -15,6 +16,8 @@ ConnectionPool = require('./lib/connectionPool')
 ###
 # stand up services
 ###
+# http.globalAgent.maxSockets = 1024
+
 app.configure 'production', ->
   # trust x forwarded for headers from proxy (heroku routing)
   app.enable('trust proxy')
