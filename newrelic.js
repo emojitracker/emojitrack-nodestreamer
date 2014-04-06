@@ -8,7 +8,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name : ['emojitrack-streamer'],
+  app_name : ['emojitrack-nodestreamer'],
   /**
    * Your New Relic license key.
    */
