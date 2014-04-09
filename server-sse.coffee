@@ -6,6 +6,7 @@ server  = http.Server(app)
 config         = require('./lib/config')
 ScorePacker    = require('./lib/scorePacker')
 ConnectionPool = require('./lib/connectionPool')
+Monitor        = require('./lib/monitor')
 
 ###
 # stand up services
@@ -91,33 +92,6 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 ###
 # monitoring
 ###
-server_node_name = ->
-  platform = 'node'
-  environment = config.ENVIRONMENT
-  dyno = process.env.DYNO || 'unknown'
-  "#{platform}-#{environment}-#{dyno}"
-
-status_report = ->
-  {
-    node: server_node_name()
-    reported_at: Date.now()
-    connections: {
-      stream_raw: rawClients.status_hash()
-      stream_eps: epsClients.status_hash()
-      stream_detail: detailClients.status_hash()
-    }
-  }
-
+monitor = new Monitor(rawClients,epsClients,detailClients)
 app.get '/subscribe/admin/node.json', (req, res) ->
-  res.json status_report()
-
-# needs to be on a different redis client than SUBSCRIBE
-redisReportingClient = config.redis_connect()
-send_report = ->
-  redisReportingClient.hset(
-    config.STREAM_STATUS_REDIS_KEY,
-    server_node_name(),
-    JSON.stringify( status_report() )
-  )
-setInterval send_report, config.STREAM_STATUS_UPDATE_RATE
-#TODO: only send the above on staging or prod
+  res.json monitor.status_report()
