@@ -1,15 +1,9 @@
-require('dotenv').load()
-
 debug   = require('debug')('emojitrack-sse:server')
-redis   = require('redis')
-url     = require('url')
 app     = require('express')()
 http    = require('http')
 server  = http.Server(app)
 
-to_bool = (s) -> s and !!s.match(/^(true|t|yes|y|1)$/i)
-VERBOSE = to_bool(process.env.VERBOSE) || false
-
+config         = require('./lib/config')
 ScorePacker    = require('./lib/scorePacker')
 ConnectionPool = require('./lib/connectionPool')
 
@@ -24,9 +18,8 @@ app.configure 'production', ->
   # enable new relic reporting
   require('newrelic')
 
-port = process.env.PORT || 8000
-server.listen port, ->
-  console.log('Listening on ' + port)
+server.listen config.PORT, ->
+  console.log('Listening on ' + config.PORT)
 
 ###
 # routing event stuff
@@ -48,11 +41,11 @@ sse_headers = (req,res) ->
 
 provision_client = (req,res,channel,connectionPool) ->
   sse_headers(req,res)
-  console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if VERBOSE
+  console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
   clientId = connectionPool.add(channel,req,res)
   req.on 'close', ->
     connectionPool.remove(clientId)
-    console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if VERBOSE
+    console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
 
 app.get '/subscribe/raw', (req, res) ->
   provision_client req,res,'/raw',rawClients
@@ -67,13 +60,7 @@ app.get '/subscribe/details/:id', (req, res) ->
 ###
 # redis event stuff
 ###
-redis_connect = ->
-  rtg = url.parse(process.env.REDIS_URL)
-  rclient = redis.createClient(rtg.port, rtg.hostname)
-  rclient.auth(rtg.auth.split(":")[1])
-  rclient
-
-redisStreamClient = redis_connect()
+redisStreamClient = config.redis_connect()
 redisStreamClient.psubscribe('stream.score_updates')
 redisStreamClient.psubscribe('stream.tweet_updates.*')
 # redis.psubscribe('stream.interaction.*')
@@ -104,12 +91,9 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 ###
 # monitoring
 ###
-STREAM_STATUS_REDIS_KEY = 'admin_stream_status'
-STREAM_STATUS_UPDATE_RATE = 5000
-
 server_node_name = ->
   platform = 'node'
-  environment = process.env.NODE_ENV || 'development'
+  environment = config.ENVIRONMENT
   dyno = process.env.DYNO || 'unknown'
   "#{platform}-#{environment}-#{dyno}"
 
@@ -128,12 +112,12 @@ app.get '/subscribe/admin/node.json', (req, res) ->
   res.json status_report()
 
 # needs to be on a different redis client than SUBSCRIBE
-redisReportingClient = redis_connect()
+redisReportingClient = config.redis_connect()
 send_report = ->
   redisReportingClient.hset(
-    STREAM_STATUS_REDIS_KEY,
+    config.STREAM_STATUS_REDIS_KEY,
     server_node_name(),
     JSON.stringify( status_report() )
   )
-setInterval send_report, STREAM_STATUS_UPDATE_RATE
+setInterval send_report, config.STREAM_STATUS_UPDATE_RATE
 #TODO: only send the above on staging or prod
