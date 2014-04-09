@@ -32,8 +32,13 @@ class Connection
   constructor: (@channel,@req,@res) ->
     @createdAt = Date.now()
 
+  # age in ms
   age: ->
-    Math.floor( (Date.now() - @createdAt) / 1000 )
+    Date.now() - @createdAt
+
+  # age in seconds, rounded down (what admin reporter still expects [for now])
+  age_secs: ->
+    Math.floor( @_age() / 1000 )
 
   sse_send: (data,event=null) ->
     @res.write @_sse_string(data,event)
@@ -48,7 +53,7 @@ class Connection
       request_path: @req.path
       tag: @channel.split('/')[2] || null
       created_at: @createdAt
-      age: @age()
+      age: @age_secs()
       client_ip: @req.ip
       client_user_agent: @req.get('User-Agent')
     }
