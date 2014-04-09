@@ -38,7 +38,7 @@ class Connection
 
   # age in seconds, rounded down (what admin reporter still expects [for now])
   age_secs: ->
-    Math.floor( @_age() / 1000 )
+    Math.floor( @age() / 1000 )
 
   sse_send: (data,event=null) ->
     @res.write @_sse_string(data,event)
