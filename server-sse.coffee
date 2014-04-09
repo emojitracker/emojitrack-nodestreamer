@@ -136,3 +136,4 @@ send_report = ->
     JSON.stringify( status_report() )
   )
 setInterval send_report, STREAM_STATUS_UPDATE_RATE
+#TODO: only send the above on staging or prod
