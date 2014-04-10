@@ -52,33 +52,31 @@ app.get '/subscribe/details/:id', (req, res) ->
 # redis event stuff
 ###
 redisStreamClient = config.redis_connect()
-redisStreamClient.psubscribe('stream.score_updates')
+scorepacker = new ScorePacker(17) #17ms
+
+redisStreamClient.subscribe('stream.score_updates')
 redisStreamClient.psubscribe('stream.tweet_updates.*')
 # redis.psubscribe('stream.interaction.*')
 
-sc = new ScorePacker(17) #17ms
-sc.on 'expunge', (scores) ->
-  epsClients.broadcast {data: JSON.stringify(scores), event: null, channel: '/eps'}
+redisStreamClient.on 'message', (channel, msg) ->
+  # in theory we could check the channel, but since we are only subscribed to one
+  # let's not bother and save an unncessary comparison operation.  in future may be necessary.
+  rawClients.broadcast {data: msg, event: null, channel: '/raw'}
+  scorepacker.increment(msg) #send to score packer for eps rollup stream
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
-
-  # TODO:  no pattern really, make this a normal subscribe
-  if channel == 'stream.score_updates'
-    #broadcast to raw stream
-    rawClients.broadcast {data: msg, event: null, channel: '/raw'}
-    #send to score packer for eps rollup stream
-    sc.increment(msg)
-
-  # TODO: we can check pattern here instead
-  else if channel.indexOf('stream.tweet_updates.') == 0 #.startsWith
+  if pattern == 'stream.tweet_updates.*'
     channelID = channel.split('.')[2]
     detailClients.broadcast {
                               data: msg
                               event: "/details/#{channelID}"
                               channel: "/details/#{channelID}"
                             }
+  # else if pattern == 'stream.interaction.*'
+  #TODO: reimplement me when we need kiosk mode again
 
-  # else if 'stream.interaction.*' #TODO: reimplement me when we need kiosk mode again
+scorepacker.on 'expunge', (scores) ->
+  epsClients.broadcast {data: JSON.stringify(scores), event: null, channel: '/eps'}
 
 
 ###
