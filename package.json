@@ -5,7 +5,7 @@
   "main": "server-sse.coffee",
   "scripts": {
     "start": "coffee server-sse.coffee",
-    "test": "mocha --compilers coffee:coffee-script/register -R spec"
+    "test": "mocha test/*.coffee"
   },
   "author": "Matthew Rothenberg <mroth@mroth.info>",
   "license": "ISC",
