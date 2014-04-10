@@ -30,22 +30,14 @@ epsClients     = new ConnectionPool()
 detailClients  = new ConnectionPool()
 #kiosk_clients = new ConnectionPool()
 
-provision_client = (req,res,channel,connectionPool) ->
-  console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
-  clientId = connectionPool.add(channel,req,res)
-  req.on 'close', ->
-    connectionPool.remove(clientId)
-    console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
-
 app.get '/subscribe/raw', (req, res) ->
-  provision_client req,res,'/raw',rawClients
-  #TODO: move this logic into class such that rawClients.provision_client foo
+  rawClients.provision req,res,'/raw'
 
 app.get '/subscribe/eps', (req, res) ->
-  provision_client req,res,'/eps',epsClients
+  epsClients.provision req,res,'/eps'
 
 app.get '/subscribe/details/:id', (req, res) ->
-  provision_client req,res,"/details/#{req.params.id}",detailClients
+  detailClients.provision req,res,"/details/#{req.params.id}"
 
 
 ###

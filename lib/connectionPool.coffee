@@ -1,14 +1,46 @@
-_ = require('lodash')
 uuid = require('node-uuid')
+_ = require('lodash')
+config = require('./config')
 debug = require('debug')('emojitrack-sse:ConnectionPool')
 
 class ConnectionPool
   constructor: () ->
     @_connections = {}
 
+  provision: (req,res,channel) ->
+    # do the SSE preamble stuff as soon as connection obj is created
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    })
+    # - http://www.giantflyingsaucer.com/blog/?p=3936
+    if req.method is 'HEAD'
+      # if we get a HTTP HEAD, we are supposed to return the headers exactly
+      # like a normal GET, but no body.  So on this case, we'll need to close the
+      # connection immediately at this point without writing anything.
+      console.log "HEAD:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
+      res.end ''
+    else
+      #
+      # normal case is a GET, and we set up our normal connection pool handling
+      #
+      console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
+      req.socket.setTimeout(Infinity) #TODO: move me to client?
+      res.write('\n')
+
+      id = @add(channel,req,res)
+
+      req.on 'close', =>
+        @remove(id)
+        console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
+
+
   add: (channel,req,res) ->
     id = uuid.v1()
-    @_connections[id] = new Connection(channel,req,res)
+    conn = new Connection(channel,req,res)
+    @_connections[id] = conn
     debug "subscribed client #{id} to #{channel}"
     id
 
@@ -31,16 +63,6 @@ class ConnectionPool
 class Connection
   constructor: (@channel,@req,@res) ->
     @createdAt = Date.now()
-
-    # do the SSE preamble stuff as soon as connection obj is created
-    @req.socket.setTimeout(Infinity)
-    @res.writeHead(200, {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
-    })
-    @res.write('\n')
 
   # age in ms
   age: ->
