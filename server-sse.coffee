@@ -30,18 +30,7 @@ epsClients     = new ConnectionPool()
 detailClients  = new ConnectionPool()
 #kiosk_clients = new ConnectionPool()
 
-sse_headers = (req,res) ->
-  req.socket.setTimeout(Infinity)
-  res.writeHead(200, {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  })
-  res.write('\n')
-
 provision_client = (req,res,channel,connectionPool) ->
-  sse_headers(req,res)
   console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
   clientId = connectionPool.add(channel,req,res)
   req.on 'close', ->
@@ -50,6 +39,7 @@ provision_client = (req,res,channel,connectionPool) ->
 
 app.get '/subscribe/raw', (req, res) ->
   provision_client req,res,'/raw',rawClients
+  #TODO: move this logic into class such that rawClients.provision_client foo
 
 app.get '/subscribe/eps', (req, res) ->
   provision_client req,res,'/eps',epsClients
@@ -72,12 +62,14 @@ sc.on 'expunge', (scores) ->
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
 
+  # TODO:  no pattern really, make this a normal subscribe
   if channel == 'stream.score_updates'
     #broadcast to raw stream
     rawClients.broadcast {data: msg, event: null, channel: '/raw'}
     #send to score packer for eps rollup stream
     sc.increment(msg)
 
+  # TODO: we can check pattern here instead
   else if channel.indexOf('stream.tweet_updates.') == 0 #.startsWith
     channelID = channel.split('.')[2]
     detailClients.broadcast {

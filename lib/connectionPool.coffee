@@ -32,6 +32,16 @@ class Connection
   constructor: (@channel,@req,@res) ->
     @createdAt = Date.now()
 
+    # do the SSE preamble stuff as soon as connection obj is created
+    @req.socket.setTimeout(Infinity)
+    @res.writeHead(200, {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    })
+    @res.write('\n')
+
   # age in ms
   age: ->
     Date.now() - @createdAt
