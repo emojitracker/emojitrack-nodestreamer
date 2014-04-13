@@ -12,8 +12,7 @@ Monitor        = require('./lib/monitor')
 # stand up services
 ###
 # http.globalAgent.maxSockets = 1024
-
-app.configure 'production', ->
+if config.ENV is 'staging' or config.ENV is 'production'
   # trust x forwarded for headers from proxy (heroku routing)
   app.enable('trust proxy')
   # enable new relic reporting
