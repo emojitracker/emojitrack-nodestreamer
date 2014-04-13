@@ -11,7 +11,7 @@ class ConnectionPool
     # do the SSE preamble stuff as soon as connection obj is created
     res.writeHead(200, {
       'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'text/event-stream',
+      'Content-Type': 'text/event-stream;charset=utf-8',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive'
     })
