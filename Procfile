@@ -1,1 +1,1 @@
-web: coffee server-sse.coffee
+web: coffee server-cluster.coffee
