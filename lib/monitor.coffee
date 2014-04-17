@@ -6,8 +6,8 @@ class Monitor
     # needs to be different redis client than subscribe/psubscribes
     @redisReportingClient = config.redis_connect()
 
-    setInterval @send_report, config.STREAM_STATUS_UPDATE_RATE
-    #TODO: only send the above on staging or prod
+    if config.ENV is 'staging' || config.ENV is 'production'
+      setInterval @send_report, config.STREAM_STATUS_UPDATE_RATE
 
   workerName: ->
     return "master" unless cluster.worker?
