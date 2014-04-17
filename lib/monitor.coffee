@@ -15,7 +15,7 @@ class Monitor
 
   server_node_name: ->
     platform = 'node'
-    environment = config.ENVIRONMENT
+    environment = config.ENV
     dyno = process.env.DYNO || 'unknown'
     "#{platform}-#{environment}-#{dyno}-#{@workerName()}"
 
