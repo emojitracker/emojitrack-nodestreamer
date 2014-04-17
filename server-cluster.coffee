@@ -113,9 +113,9 @@ if cluster.isWorker
       when 'epsBroadcast'    then epsClients.broadcast msg.payload
       when 'detailBroadcast' then detailClients.broadcast msg.payload
 
-# ###
-# # monitoring
-# ###
-# monitor = new Monitor(rawClients,epsClients,detailClients)
-# app.get '/subscribe/admin/node.json', (req, res) ->
-#   res.json monitor.status_report()
+  ###
+  # monitoring
+  ###
+  monitor = new Monitor(rawClients,epsClients,detailClients)
+  app.get '/subscribe/admin/node.json', (req, res) ->
+    res.json monitor.status_report()
