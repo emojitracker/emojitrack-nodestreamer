@@ -1,4 +1,5 @@
-config = require('./config')
+cluster = require('cluster')
+config  = require('./config')
 
 class Monitor
   constructor: (@rawClients,@epsClients,@detailClients) ->
@@ -8,11 +9,15 @@ class Monitor
     setInterval @send_report, config.STREAM_STATUS_UPDATE_RATE
     #TODO: only send the above on staging or prod
 
+  workerName: ->
+    return "master" unless cluster.worker?
+    "worker.#{cluster.worker.id}"
+
   server_node_name: ->
     platform = 'node'
     environment = config.ENVIRONMENT
     dyno = process.env.DYNO || 'unknown'
-    "#{platform}-#{environment}-#{dyno}"
+    "#{platform}-#{environment}-#{dyno}-#{@workerName()}"
 
   status_report: ->
     {
