@@ -22,6 +22,7 @@ class Monitor
   status_report: ->
     {
       node: @server_node_name()
+      status: 'OK'
       reported_at: Date.now()
       connections: {
         stream_raw: @rawClients.status_hash()
