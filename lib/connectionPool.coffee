@@ -15,16 +15,16 @@ class ConnectionPool
   provision: (req,res,namespace) ->
     # do the SSE preamble stuff as soon as connection obj is created
     res.writeHead(200, {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'text/event-stream; charset=utf-8',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
+      'Access-Control-Allow-Origin' : '*',
+      'Content-Type'                : 'text/event-stream; charset=utf-8',
+      'Cache-Control'               : 'no-cache',
+      'Connection'                  : 'keep-alive'
     })
-    # - http://www.giantflyingsaucer.com/blog/?p=3936
     if req.method is 'HEAD'
       # if we get a HTTP HEAD, we are supposed to return the headers exactly
       # like a normal GET, but no body.  So on this case, we'll need to close the
       # connection immediately at this point without writing anything.
+      # - http://www.giantflyingsaucer.com/blog/?p=3936
       console.log "HEAD:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
       res.end ''
     else
