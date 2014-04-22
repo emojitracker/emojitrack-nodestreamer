@@ -10,7 +10,7 @@ and should be better code in general overall.
 This should be API compatible with the MRI version. (In fact, we're load
 balancing 50% of clients to each right now to test in production.)  For a full
 explanation of the responsibilities of this system and it's API, see the README
-for [mroth/emojitrack-streamer](https://github.com/mroth/emojitrack-streamer).
+for [mroth/emojitrack-streamer-spec](//github.com/mroth/emojitrack-streamer-spec).
 
 The first stab at this was actually slower (albeit most consistent), so now
 experimenting with cluster workers to try to take advantage of multiple CPU
@@ -40,7 +40,7 @@ implementation. This is almost pure IO and event handling, which NodeJS should
 excel at.  There is some low hanging fruit in terms of redundant String
 operations, but nothing that should account for much CPU usage (and fixing those
 things proved to show no real difference in benchmarking, so I left them out to
-try to find the real  critical paths.)
+try to find the real critical paths.)
 
 Benchmarks coming soon.
 
