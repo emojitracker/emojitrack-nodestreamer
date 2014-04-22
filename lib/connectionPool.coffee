@@ -19,6 +19,7 @@ class ConnectionPool
       'Content-Type'                : 'text/event-stream; charset=utf-8',
       'Cache-Control'               : 'no-cache',
       'Connection'                  : 'keep-alive'
+      'Transfer-Encoding'           : 'identity'
     })
     if req.method is 'HEAD'
       # if we get a HTTP HEAD, we are supposed to return the headers exactly
