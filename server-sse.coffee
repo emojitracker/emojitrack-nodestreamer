@@ -60,7 +60,7 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
     channelID = channel.split('.')[2]
     detailClients.broadcast {
                               data: msg
-                              event: "/details/#{channelID}"
+                              event: channel
                               channel: "/details/#{channelID}"
                             }
   # else if pattern == 'stream.interaction.*'

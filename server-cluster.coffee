@@ -44,7 +44,7 @@ if cluster.isMaster
                         action: 'detailBroadcast'
                         payload: {
                           data: msg
-                          event: "/details/#{channelID}"
+                          event: channel
                           channel: "/details/#{channelID}"
                         }
                       }
