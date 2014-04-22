@@ -52,7 +52,7 @@ redisStreamClient.psubscribe('stream.tweet_updates.*')
 redisStreamClient.on 'message', (channel, msg) ->
   # in theory we could check the channel, but since we are only subscribed to one
   # let's not bother and save an unncessary comparison operation.  in future may be necessary.
-  rawClients.broadcast {data: msg, event: null, channel: '/raw'}
+  rawClients.broadcast {data: msg, event: null, namespace: '/raw'}
   scorepacker.increment(msg) #send to score packer for eps rollup stream
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
@@ -61,13 +61,13 @@ redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
     detailClients.broadcast {
                               data: msg
                               event: channel
-                              channel: "/details/#{channelID}"
+                              namespace: "/details/#{channelID}"
                             }
   # else if pattern == 'stream.interaction.*'
   #TODO: reimplement me when we need kiosk mode again
 
 scorepacker.on 'expunge', (scores) ->
-  epsClients.broadcast {data: JSON.stringify(scores), event: null, channel: '/eps'}
+  epsClients.broadcast {data: JSON.stringify(scores), event: null, namespace: '/eps'}
 
 
 ###

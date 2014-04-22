@@ -12,7 +12,7 @@ class ConnectionPool
     return "master" unless cluster.worker?
     "worker.#{cluster.worker.id}"
 
-  provision: (req,res,channel) ->
+  provision: (req,res,namespace) ->
     # do the SSE preamble stuff as soon as connection obj is created
     res.writeHead(200, {
       'Access-Control-Allow-Origin': '*',
@@ -35,18 +35,18 @@ class ConnectionPool
       req.socket.setTimeout(Infinity) #TODO: move me to client?
       res.write('\n')
 
-      id = @add(channel,req,res)
+      id = @add(namespace,req,res)
 
       req.on 'close', =>
         @remove(id)
         console.log "DISCONNECT:\t#{req.path}\tby #{req.ip} (#{@workerName()})" if config.VERBOSE
 
 
-  add: (channel,req,res) ->
+  add: (namespace,req,res) ->
     id = uuid.v1()
-    conn = new Connection(channel,req,res)
+    conn = new Connection(namespace,req,res)
     @_connections[id] = conn
-    debug "subscribed client #{id} to #{channel}"
+    debug "subscribed client #{id} to #{namespace}"
     id
 
   remove: (id) ->
@@ -56,17 +56,17 @@ class ConnectionPool
   count: ->
     Object.keys(@_connections).length
 
-  broadcast: ({data,event,channel}) ->
-    client.sse_send(data,event) for client in @_match(channel)
+  broadcast: ({data,event,namespace}) ->
+    client.sse_send(data,event) for client in @_match(namespace)
 
-  _match: (channel) ->
-    _.where(@_connections,{channel:channel})
+  _match: (namespace) ->
+    _.where(@_connections,{namespace:namespace})
 
   status_hash: ->
     _.map @_connections, (conn)->conn.status_hash()
 
 class Connection
-  constructor: (@channel,@req,@res) ->
+  constructor: (@namespace,@req,@res) ->
     @createdAt = Date.now()
 
   # age in ms
@@ -88,7 +88,7 @@ class Connection
   status_hash: ->
     {
       request_path: @req.path
-      tag: @channel.split('/')[2] || null
+      tag: @namespace.split('/')[2] || null
       created_at: @createdAt
       age: @age_secs()
       client_ip: @req.ip
