@@ -81,7 +81,7 @@ class Connection
     @res.write @_sse_string(data,event)
 
   _sse_string: (data,event=null) ->
-    "event:#{event}\ndata:#{data}\n\n" if event?
+    return "event:#{event}\ndata:#{data}\n\n" if event?
     "data:#{data}\n\n"
 
   # return a hash of what our reporting infrastructure expects
