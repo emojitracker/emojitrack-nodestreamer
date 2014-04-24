@@ -18,7 +18,7 @@ module.exports = {
   redis_connect: ->
     rtg = url.parse(@REDIS_URL)
     rclient = redis.createClient(rtg.port, rtg.hostname)
-    rclient.auth(rtg.auth.split(":")[1])
+    rclient.auth(rtg.auth.split(":")[1]) if rtg.auth?
     rclient
 
 }
