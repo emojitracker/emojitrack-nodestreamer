@@ -23,7 +23,7 @@ class Monitor
     {
       node: @server_node_name()
       status: 'OK'
-      reported_at: Date.now()
+      reported_at: Math.floor(Date.now() / 1000)
       connections: {
         stream_raw: @rawClients.status_hash()
         stream_eps: @epsClients.status_hash()

@@ -90,7 +90,7 @@ class Connection
     {
       request_path: @req.path
       tag: @namespace.split('/')[2] || null
-      created_at: @createdAt
+      created_at: Math.floor( @createdAt / 1000 )
       age: @age_secs()
       client_ip: @req.ip
       client_user_agent: @req.get('User-Agent')
