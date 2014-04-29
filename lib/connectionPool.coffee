@@ -89,11 +89,12 @@ class Connection
   status_hash: ->
     {
       request_path: @req.path
+      namespace: @namespace
       tag: @namespace.split('/')[2] || null
       created_at: Math.floor( @createdAt / 1000 )
       age: @age_secs()
       client_ip: @req.ip
-      client_user_agent: @req.get('User-Agent')
+      user_agent: @req.get('User-Agent')
     }
 
 
