@@ -74,5 +74,5 @@ scorepacker.on 'expunge', (scores) ->
 # monitoring
 ###
 monitor = new Monitor(rawClients,epsClients,detailClients)
-app.get '/subscribe/admin/node.json', (req, res) ->
+app.get '/admin/status.json', (req, res) ->
   res.json monitor.status_report()
