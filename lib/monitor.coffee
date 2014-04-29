@@ -2,7 +2,7 @@ cluster = require('cluster')
 config  = require('./config')
 
 class Monitor
-  constructor: (@rawClients,@epsClients,@detailClients) ->
+  constructor: (@clients) ->
     # needs to be different redis client than subscribe/psubscribes
     @redisReportingClient = config.redis_connect()
 
@@ -24,11 +24,7 @@ class Monitor
       node: @server_node_name()
       status: 'OK'
       reported_at: Math.floor(Date.now() / 1000)
-      connections: {
-        stream_raw: @rawClients.status_hash()
-        stream_eps: @epsClients.status_hash()
-        stream_detail: @detailClients.status_hash()
-      }
+      connections: @clients.status_hash()
     }
 
   send_report: =>

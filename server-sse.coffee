@@ -24,19 +24,17 @@ server.listen config.PORT, ->
 ###
 # routing event stuff
 ###
-rawClients     = new ConnectionPool()
-epsClients     = new ConnectionPool()
-detailClients  = new ConnectionPool()
-#kiosk_clients = new ConnectionPool()
+# kiosk_clients  = new ConnectionPool()
+clients        = new ConnectionPool()
 
 app.get '/subscribe/raw', (req, res) ->
-  rawClients.provision req,res,'/raw'
+  clients.provision req,res,'/raw'
 
 app.get '/subscribe/eps', (req, res) ->
-  epsClients.provision req,res,'/eps'
+  clients.provision req,res,'/eps'
 
 app.get '/subscribe/details/:id', (req, res) ->
-  detailClients.provision req,res,"/details/#{req.params.id}"
+  clients.provision req,res,"/details/#{req.params.id}"
 
 
 ###
@@ -52,27 +50,27 @@ redisStreamClient.psubscribe('stream.tweet_updates.*')
 redisStreamClient.on 'message', (channel, msg) ->
   # in theory we could check the channel, but since we are only subscribed to one
   # let's not bother and save an unncessary comparison operation.  in future may be necessary.
-  rawClients.broadcast {data: msg, event: null, namespace: '/raw'}
+  clients.broadcast {data: msg, event: null, namespace: '/raw'}
   scorepacker.increment(msg) #send to score packer for eps rollup stream
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
   if pattern == 'stream.tweet_updates.*'
     channelID = channel.split('.')[2]
-    detailClients.broadcast {
-                              data: msg
-                              event: channel
-                              namespace: "/details/#{channelID}"
-                            }
+    clients.broadcast {
+                        data: msg
+                        event: channel
+                        namespace: "/details/#{channelID}"
+                      }
   # else if pattern == 'stream.interaction.*'
   #TODO: reimplement me when we need kiosk mode again
 
 scorepacker.on 'expunge', (scores) ->
-  epsClients.broadcast {data: JSON.stringify(scores), event: null, namespace: '/eps'}
+  clients.broadcast {data: JSON.stringify(scores), event: null, namespace: '/eps'}
 
 
 ###
 # monitoring
 ###
-monitor = new Monitor(rawClients,epsClients,detailClients)
+monitor = new Monitor(clients)
 app.get '/admin/status.json', (req, res) ->
   res.json monitor.status_report()
