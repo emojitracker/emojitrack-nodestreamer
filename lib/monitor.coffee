@@ -10,14 +10,14 @@ class Monitor
       setInterval @send_report, config.STREAM_STATUS_UPDATE_RATE
 
   workerName: ->
-    return "master" unless cluster.worker?
-    "worker.#{cluster.worker.id}"
+    return "" unless cluster.worker?
+    "-worker.#{cluster.worker.id}"
 
   server_node_name: ->
     platform = 'node'
     environment = config.ENV
     dyno = process.env.DYNO || 'unknown'
-    "#{platform}-#{environment}-#{dyno}-#{@workerName()}"
+    "#{platform}-#{environment}-#{dyno}#{@workerName()}"
 
   status_report: ->
     {
