@@ -8,10 +8,6 @@ class ConnectionPool
   constructor: () ->
     @_connections = {}
 
-  workerName: ->
-    return "master" unless cluster.worker?
-    "worker.#{cluster.worker.id}"
-
   provision: (req,res,namespace) ->
     # do the SSE preamble stuff as soon as connection obj is created
     res.writeHead(200, {
@@ -32,7 +28,7 @@ class ConnectionPool
       #
       # normal case is a GET, and we set up our normal connection pool handling
       #
-      console.log "CONNECT:\t#{req.path}\tby #{req.ip} (#{@workerName()})" if config.VERBOSE
+      console.log "CONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
       req.socket.setTimeout(Infinity) #TODO: move me to client?
       res.write('\n')
 
@@ -40,7 +36,7 @@ class ConnectionPool
 
       req.on 'close', =>
         @remove(id)
-        console.log "DISCONNECT:\t#{req.path}\tby #{req.ip} (#{@workerName()})" if config.VERBOSE
+        console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
 
 
   add: (namespace,req,res) ->
