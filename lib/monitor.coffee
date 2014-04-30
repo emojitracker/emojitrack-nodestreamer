@@ -24,7 +24,7 @@ class Monitor
       node: @server_node_name()
       status: 'OK'
       reported_at: Math.floor(Date.now() / 1000)
-      connections: @clients.status_hash()
+      connections: @clients.status()
     }
 
   send_report: =>

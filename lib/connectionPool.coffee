@@ -42,16 +42,16 @@ class ConnectionPool
       req.socket.setTimeout(Infinity) #TODO: move me to client?
       res.write('\n')
 
-      id = @add(namespace,req,res)
+      id = @_add(namespace,req,res)
 
       req.on 'close', =>
-        @remove(id)
+        @_remove(id)
         console.log "DISCONNECT:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
 
   # add a new client to the connection pool.
   # returns a UUID for the client so it can be referred to later.
   # [internal method, used by `#provision`]
-  add: (namespace,req,res) ->
+  _add: (namespace,req,res) ->
     id = uuid.v1()
     conn = new Connection(namespace,req,res)
     @_connections[id] = conn
@@ -60,7 +60,7 @@ class ConnectionPool
 
   # remove a client from the connection pool.
   # [internal method, normally called via callback on client disconnect.]
-  remove: (id) ->
+  _remove: (id) ->
     debug "unsubscribed client #{id}"
     delete @_connections[id]
 
@@ -78,8 +78,8 @@ class ConnectionPool
     _.where(@_connections,{namespace:namespace})
 
   # status hash for the connection pool.
-  status_hash: ->
-    _.map @_connections, (conn)->conn.status_hash()
+  status: ->
+    _.map @_connections, (conn)->conn.status()
 
 
 class Connection
@@ -98,7 +98,7 @@ class Connection
     "data:#{data}\n\n"
 
   # status hash for the connection.
-  status_hash: ->
+  status: ->
     {
       request_path: @req.path
       namespace: @namespace
