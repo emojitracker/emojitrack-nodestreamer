@@ -19,8 +19,8 @@ class ConnectionPool
     })
     if req.method is 'HEAD'
       # if we get a HTTP HEAD, we are supposed to return the headers exactly
-      # like a normal GET, but no body.  So on this case, we'll need to close the
-      # connection immediately at this point without writing anything.
+      # like a normal GET, but no body.  So on this case, we'll need to close
+      # the connection immediately at this point without writing anything.
       # - http://www.giantflyingsaucer.com/blog/?p=3936
       console.log "HEAD:\t#{req.path}\tby #{req.ip}" if config.VERBOSE
       res.end ''
@@ -62,17 +62,10 @@ class ConnectionPool
   status_hash: ->
     _.map @_connections, (conn)->conn.status_hash()
 
+
 class Connection
   constructor: (@namespace,@req,@res) ->
     @createdAt = Date.now()
-
-  # age in ms
-  age: ->
-    Date.now() - @createdAt
-
-  # age in seconds, rounded down (what admin reporter still expects [for now])
-  age_secs: ->
-    Math.floor( @age() / 1000 )
 
   sse_send: (data,event=null) ->
     @res.write @_sse_string(data,event)
@@ -86,9 +79,7 @@ class Connection
     {
       request_path: @req.path
       namespace: @namespace
-      tag: @namespace.split('/')[2] || null
       created_at: Math.floor( @createdAt / 1000 )
-      age: @age_secs()
       client_ip: @req.ip
       user_agent: @req.get('User-Agent')
     }
