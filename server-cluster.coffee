@@ -77,7 +77,7 @@ if cluster.isWorker
   ###
   # stand up services
   ###
-  # http.globalAgent.maxSockets = 1024
+
   if config.ENV is 'staging' or config.ENV is 'production'
     # trust x forwarded for headers from proxy (heroku routing)
     app.enable('trust proxy')
