@@ -39,7 +39,7 @@ scorepacker = new ScorePacker(17) #17ms
 
 redisStreamClient.subscribe('stream.score_updates')
 redisStreamClient.psubscribe('stream.tweet_updates.*')
-# redis.psubscribe('stream.interaction.*')
+# redisStreamClient.psubscribe('stream.interaction.*')
 
 redisStreamClient.on 'message', (channel, msg) ->
   # in theory we could check the channel, but since we are only subscribed to one
@@ -49,11 +49,11 @@ redisStreamClient.on 'message', (channel, msg) ->
 
 redisStreamClient.on 'pmessage', (pattern, channel, msg) ->
   if pattern == 'stream.tweet_updates.*'
-    channelID = channel.split('.')[2]
+    id = channel.split('.')[2]
     clients.broadcast {
                         data: msg
                         event: channel
-                        namespace: "/details/#{channelID}"
+                        namespace: "/details/#{id}"
                       }
   # else if pattern == 'stream.interaction.*'
   #TODO: reimplement me when we need kiosk mode again
