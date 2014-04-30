@@ -90,17 +90,11 @@ if cluster.isWorker
   ###
   # routing event stuff
   ###
-  #kiosk_clients = new ConnectionPool()
   clients = new ConnectionPool()
 
-  app.get '/subscribe/raw', (req, res) ->
-    clients.provision req,res,'/raw'
-
-  app.get '/subscribe/eps', (req, res) ->
-    clients.provision req,res,'/eps'
-
-  app.get '/subscribe/details/:id', (req, res) ->
-    clients.provision req,res,"/details/#{req.params.id}"
+  app.get '/subscribe/:namespace', (req, res) ->
+    namespace = '/' + req.params.namespace
+    clients.provision req,res,namespace
 
   ###
   # worker receive event stuff
