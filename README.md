@@ -1,5 +1,7 @@
 # emojitrack-nodestreamer
 
+[![Build Status](https://travis-ci.org/mroth/emojitrack-nodestreamer.svg?branch=master)](https://travis-ci.org/mroth/emojitrack-nodestreamer)
+
 First stab at experimental standalone replacement for emojitrack SSE streaming
 web services, using node evented methods rather than MRI ruby with threads.
 While the Ruby version was written in spaghetti-land while I had no idea what I
