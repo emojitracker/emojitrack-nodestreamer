@@ -92,8 +92,8 @@ if cluster.isWorker
   ###
   clients = new ConnectionPool()
 
-  app.get '/subscribe/:namespace', (req, res) ->
-    namespace = '/' + req.params.namespace
+  app.get '/subscribe/:namespace*', (req, res) ->
+    namespace = '/' + req.params.namespace + req.params[0]
     clients.provision req,res,namespace
 
   ###
